@@ -1,7 +1,7 @@
 ---
 title: "China COVID-19 Analysis"
 author: "David J Jackson"
-date: "Apr. 23,2020 5:50 PM/EDT"
+date: "Apr. 25, 2020 12:25 PM/EDT"
 output: html_document
 ---
 
@@ -33,7 +33,7 @@ CHINA$Reported <- as.Date(CHINA$Reported)
 ```{r,echo=FALSE}
 CHINA$Cases <- na.omit(CHINA$Cases)
 china_cases <-CHINA %>% ggplot() +
-  geom_col(aes(x=Reported,y=log(Cases))) +
+  geom_col(aes(x=Reported,y=Cases)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(title="CHINA: COVID-19: Daily Cases by Date",y="Log of Cases") +
      scale_y_log10()
@@ -43,10 +43,10 @@ ggplotly(china_cases)
 ```{r}
     
 CHINA$Deaths <- na.omit(CHINA$Deaths)
-china_deaths <-CHINA %>% filter(Reported >= Sys.Date() - 60) %>%  ggplot() + geom_col(aes(x=Reported,y=log(Deaths),fill=Deaths)) +
+china_deaths <-CHINA  %>%  ggplot() + geom_col(aes(x=Reported,y=Deaths,fill=Deaths)) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(x="Date Reported",y="Log Deaths",title="COVID-19: Deaths by Date",
-           subtitle="(Logarithmic Scale)") + scale_y_log10()
+      labs(x="Date Reported",y="Log Deaths",title="COVID-19: Deaths by Date") +
+            scale_y_log10()
 
 ggplotly(china_deaths)           
 
@@ -71,18 +71,17 @@ JHU_CHINA$Date <- as.Date(JHU_CHINA$Date)
 JHU_CHINA %>% 
   ggplot() + geom_col(aes(x=Date,y=na.omit(Cases),fill=Cases)) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(title="China COVID-19: Accumulated Total (Confirmed) Cases by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
+      labs(title="China COVID-19: Accumulated Total (Confirmed) Cases by Date",x="Date Reported",y="Total Cases")  +  scale_y_log10() +
   scale_fill_gradient(labels = scales::comma)
 
 
 ```
 ```{r,echo=FALSE}
 
-acc_4 <- JHU_CHINA %>% filter(Date >= Sys.Date() -60) %>%
+acc_4 <- JHU_CHINA  %>%
     ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Deaths)) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(title="China COVID-19: Total  Deaths by Date",x="Date Reported",y="Total Deaths") +   
-  scale_y_continuous(labels = scales::comma) + scale_fill_gradient(labels = scales::comma)
+      labs(title="China COVID-19: Total  Deaths by Date",x="Date Reported",y="Total Deaths") +   scale_y_log10() + scale_fill_gradient(labels = scales::comma)
 ggplotly(acc_4)
 ```
 
@@ -92,17 +91,17 @@ ggplotly(acc_4)
 JHU_CHINA %>% 
   ggplot() + geom_col(aes(x=Date,y=na.omit(Recovered),fill=Recovered)) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(title="China COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
-  scale_fill_gradient(labels = scales::comma)
+      labs(title="China COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")   +
+  scale_fill_gradient(labels = scales::comma) + scale_y_log10()
 ```
 
 ```{r}
 
-JHU_CHINA %>% filter(Date >= Sys.Date() -60) %>%
+JHU_CHINA  %>%
   ggplot() + geom_col(aes(x=Date,y=na.omit(Recovered),fill=Recovered)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(title="CHINAA COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
-  scale_fill_gradient(labels = scales::comma)
+  scale_fill_gradient(labels = scales::comma) + scale_y_log10()
 ```
 
 
