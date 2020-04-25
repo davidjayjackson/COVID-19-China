@@ -6,8 +6,8 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.width=9, fig.height=6)
+knitr::opts_chunk$set(echo = TRUE,
+     fig.width=9, fig.height=6 ) 
 library(tidyverse)
 library(plotly)
 library(RSQLite)
@@ -20,55 +20,55 @@ rm(list=ls())
 db <- dbConnect(SQLite(), dbname="../COVIDDB/CORVID.sqlite3")
 ```
 ```{r,echo=FALSE}
-US <- dbGetQuery(db, "SELECT Countries,Reported,Cases,Deaths FROM ECDC 
+CHINA <- dbGetQuery(db, "SELECT Countries,Reported,Cases,Deaths FROM ECDC 
                  WHERE Countries ='China'")
-US$Reported <- as.Date(US$Reported)
+CHINA$Reported <- as.Date(CHINA$Reported)
 
 ```
 
-## US Cases  and Deaths by Date (Previous 30 Days)
+## CHINA Cases  and Deaths by Date 
  * Data Source: European Centre for Disease Prevention and Control
  * URL: https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide
 
 ```{r,echo=FALSE}
-US %>% filter(Reported >= Sys.Date() - 60) %>%  ggplot() +
-  geom_col(aes(x=Reported,y=log(Cases),fill=Cases)) +
+CHINA$Cases <- na.omit(CHINA$Cases)
+china_cases <-CHINA %>% ggplot() +
+  geom_col(aes(x=Reported,y=log(Cases))) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(title="CHINA: COVID-19: Daily Cases by Date",y="Log of Cases",
-           subtitle = "(Logarithmic Scale)")
+      labs(title="CHINA: COVID-19: Daily Cases by Date",y="Log of Cases") +
+     scale_y_log10()
 
-  # geom_rect(data=US,aes(xmin=max(Reported) -10,xmax=max(Reported) -15,ymin=min(Cases),ymax=max(Cases)), alpha= 0.01,fill="grey")
-
+ggplotly(china_cases)
 ```
 ```{r}
     
-# ggplotly(cases_1)
-
-US %>% filter(Reported >= Sys.Date() - 60) %>%  ggplot() + geom_col(aes(x=Reported,y=log(Deaths),fill=Deaths)) +
+CHINA$Deaths <- na.omit(CHINA$Deaths)
+china_deaths <-CHINA %>% filter(Reported >= Sys.Date() - 60) %>%  ggplot() + geom_col(aes(x=Reported,y=log(Deaths),fill=Deaths)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(x="Date Reported",y="Log Deaths",title="COVID-19: Deaths by Date",
-           subtitle="(Logarithmic Scale)")
-           
+           subtitle="(Logarithmic Scale)") + scale_y_log10()
+
+ggplotly(china_deaths)           
 
 
 
 ```
 
 
-### US Accumulated Daily Total: Cases and Deaths
-* Data Source: John Hopkins Coronavirus Resource Center
-* URL: https://coronavirus.jhu.edu/map.html
+### CHINA Accumulated Daily Total: Cases and Deaths
+* Data Source: John Hopkins CoronavirCHINA Resource Center
+* URL: https://coronavirCHINA.jhu.edu/map.html
 
 
 ```{r,echo=FALSE}
-JHU_US<- dbGetQuery(db, "SELECT country,Date,confirmed,deaths,recovered FROM JHUDATA
+JHU_CHINA<- dbGetQuery(db, "SELECT country,Date,confirmed,deaths,recovered FROM JHUDATA
                      WHERE country='China';")
-colnames(JHU_US) <- c("Countries","Date","Cases","Deaths","Recovered")
-JHU_US$Date <- as.Date(JHU_US$Date) 
+colnames(JHU_CHINA) <- c("Countries","Date","Cases","Deaths","Recovered")
+JHU_CHINA$Date <- as.Date(JHU_CHINA$Date) 
 ```
 
 ```{r,echo=FALSE}
-JHU_US %>% 
+JHU_CHINA %>% 
   ggplot() + geom_col(aes(x=Date,y=na.omit(Cases),fill=Cases)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(title="China COVID-19: Accumulated Total (Confirmed) Cases by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
@@ -78,7 +78,7 @@ JHU_US %>%
 ```
 ```{r,echo=FALSE}
 
-acc_4 <- JHU_US %>% filter(Date >= Sys.Date() -60) %>%
+acc_4 <- JHU_CHINA %>% filter(Date >= Sys.Date() -60) %>%
     ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Deaths)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(title="China COVID-19: Total  Deaths by Date",x="Date Reported",y="Total Deaths") +   
@@ -86,32 +86,24 @@ acc_4 <- JHU_US %>% filter(Date >= Sys.Date() -60) %>%
 ggplotly(acc_4)
 ```
 
-### US Recoveries Accoumliated  and Daily
+### CHINA Recoveries Accoumliated  and Daily
 
 ```{r} 
-JHU_US %>% 
+JHU_CHINA %>% 
   ggplot() + geom_col(aes(x=Date,y=na.omit(Recovered),fill=Recovered)) +
   theme(axis.text.x = element_text(angle = 45)) +
       labs(title="China COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
   scale_fill_gradient(labels = scales::comma)
 ```
+
 ```{r}
 
-# WA <- JHU_US %>% group_by(Date) %>% 
-# summarise(Cases=sum(Cases), Deaths = sum(Deaths))   %>%
-#    mutate(daily_deaths = Deaths - lag(Deaths)) %>% 
-#    mutate(daily_cases = Cases -  lag(Cases)) %>%
-#   mutate(daily_recovered = Recovered -  lag(Recovered)) %>%
-#    mutate(DeathRate = daily_deaths/daily_cases)
-```
-```{r}
-
-JHU_US %>% filter(Date >= Sys.Date() -60) %>%
+JHU_CHINA %>% filter(Date >= Sys.Date() -60) %>%
   ggplot() + geom_col(aes(x=Date,y=na.omit(Recovered),fill=Recovered)) +
   theme(axis.text.x = element_text(angle = 45)) +
-      labs(title="USA COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
+      labs(title="CHINAA COVID-19: Accumulated  Recoveries by Date",x="Date Reported",y="Total Cases")  + scale_y_continuous(labels = scales::comma) +
   scale_fill_gradient(labels = scales::comma)
-
+```
 
 
 
